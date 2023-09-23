@@ -1,0 +1,187 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// Define a Book class to store book information
+class Book {
+public:
+    string title;
+    string author;
+    int year;
+    bool available;
+
+    Book(const string& _title, const string& _author, int _year)
+        : title(_title), author(_author), year(_year), available(true) {}
+};
+
+// Define a User class to store user information
+class User {
+public:
+    string name;
+
+    User(const string& _name) : name(_name) {}
+};
+
+// Library class to manage books and users
+class Library {
+public:
+    vector<Book> books;
+    vector<User> users;
+
+    void addBook(const string& title, const string& author, int year) {
+        books.emplace_back(title, author, year);
+    }
+
+    void removeBook(const string& title) {
+        auto it = find_if(books.begin(), books.end(), [&title](const Book& book) {
+            return book.title == title;
+        });
+
+        if (it != books.end()) {
+            books.erase(it);
+        }
+    }
+
+    void listBooks() {
+        cout << "List of All Books:" << endl;
+        for (const Book& book : books) {
+            cout << "Title: " << book.title << ", Author: " << book.author << ", Year: " << book.year << ", Available: " << (book.available ? "Yes" : "No") << endl;
+        }
+    }
+
+    void checkOutBook(const string& userName, const string& title) {
+        auto userIt = find_if(users.begin(), users.end(), [&userName](const User& user) {
+            return user.name == userName;
+        });
+
+        if (userIt == users.end()) {
+            cout << "User not found." << endl;
+            return;
+        }
+
+        auto bookIt = find_if(books.begin(), books.end(), [&title](const Book& book) {
+            return book.title == title && book.available;
+        });
+
+        if (bookIt != books.end()) {
+            bookIt->available = false;
+            cout << "Book checked out successfully." << endl;
+        } else {
+            cout << "Book not available or not found." << endl;
+        }
+    }
+
+    void checkInBook(const string& title) {
+        auto bookIt = find_if(books.begin(), books.end(), [&title](const Book& book) {
+            return book.title == title && !book.available;
+        });
+
+        if (bookIt != books.end()) {
+            bookIt->available = true;
+            cout << "Book checked in successfully." << endl;
+        } else {
+            cout << "Book not checked out or not found." << endl;
+        }
+    }
+
+    void addUser(const string& userName) {
+        users.emplace_back(userName);
+    }
+};
+
+int main() {
+    Library library;
+
+    while (true) {
+        cout << "Library Management System Menu:" << endl;
+        cout << "1. Add a User" << endl;
+        cout << "2. Add a Book" << endl;
+        cout << "3. Remove a Book" << endl;
+        cout << "4. List All Books" << endl;
+        cout << "5. Check Out a Book" << endl;
+        cout << "6. Check In a Book" << endl;
+        cout << "7. Exit" << endl;
+        cout << "Select an option (1-7): ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                {
+                    string userName;
+                    cout << "Enter User Name: ";
+                    cin.ignore();
+                    getline(cin, userName);
+                    library.addUser(userName);
+                    cout << "User added successfully." << endl;
+                }
+                break;
+
+            case 2:
+                {
+                    string title, author;
+                    int year;
+                    cout << "Enter Book Title: ";
+                    cin.ignore();
+                    getline(cin, title);
+                    cout << "Enter Author: ";
+                    getline(cin, author);
+                    cout << "Enter Publication Year: ";
+                    cin >> year;
+                    library.addBook(title, author, year);
+                    cout << "Book added successfully." << endl;
+                }
+                break;
+
+            case 3:
+                {
+                    string title;
+                    cout << "Enter Book Title to Remove: ";
+                    cin.ignore();
+                    getline(cin, title);
+                    library.removeBook(title);
+                    cout << "Book removed successfully." << endl;
+                }
+                break;
+
+            case 4:
+                library.listBooks();
+                break;
+
+            case 5:
+                {
+                    string userName, title;
+                    cout << "Enter User Name: ";
+                    cin.ignore();
+                    getline(cin, userName);
+                    cout << "Enter Book Title to Check Out: ";
+                    getline(cin, title);
+                    library.checkOutBook(userName, title);
+                }
+                break;
+
+            case 6:
+                {
+                    string title;
+                    cout << "Enter Book Title to Check In: ";
+                    cin.ignore();
+                    getline(cin, title);
+                    library.checkInBook(title);
+                }
+                break;
+
+            case 7:
+                cout << "Exiting the Library Management System." << endl;
+                return 0;
+
+            default:
+                cout << "Invalid option. Please select a valid option (1-7)." << endl;
+        }
+    }
+
+    return 0;
+}
